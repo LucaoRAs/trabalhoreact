@@ -10,9 +10,9 @@ const api = axios.create({
 });
 
 export const veiculosAPI = {
-  // Buscar todos os veículos
-  getAll: async () => {
-    const response = await api.get('/veiculos');
+  // Buscar todos os veículos com paginação e busca
+  getAll: async (params = {}) => {
+    const response = await api.get('/veiculos', { params });
     return response.data;
   },
 
@@ -37,6 +37,12 @@ export const veiculosAPI = {
   // Deletar veículo
   delete: async (id) => {
     const response = await api.delete(`/veiculos/${id}`);
+    return response.data;
+  },
+
+  // Buscar estatísticas
+  getStats: async () => {
+    const response = await api.get('/veiculos/stats');
     return response.data;
   },
 };

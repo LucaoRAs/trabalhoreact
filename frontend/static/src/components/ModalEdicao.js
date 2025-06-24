@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { veiculosAPI } from '../api';
 
-const ModalCadastro = ({ isOpen, onClose, onSuccess }) => {
+const ModalEdicao = ({ isOpen, onClose, veiculo, onSuccess }) => {
   const [formData, setFormData] = useState({
     modelo: '',
     marca: '',
@@ -11,6 +11,19 @@ const ModalCadastro = ({ isOpen, onClose, onSuccess }) => {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (veiculo && isOpen) {
+      setFormData({
+        modelo: veiculo.modelo || '',
+        marca: veiculo.marca || '',
+        ano: veiculo.ano || '',
+        cor: veiculo.cor || '',
+        preco: veiculo.preco || ''
+      });
+      setErrors({});
+    }
+  }, [veiculo, isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,24 +78,16 @@ const ModalCadastro = ({ isOpen, onClose, onSuccess }) => {
     setLoading(true);
     
     try {
-      await veiculosAPI.create({
+      await veiculosAPI.update(veiculo.id, {
         ...formData,
         ano: parseInt(formData.ano),
         preco: parseFloat(formData.preco)
       });
       
-      setFormData({
-        modelo: '',
-        marca: '',
-        ano: '',
-        cor: '',
-        preco: ''
-      });
-      setErrors({});
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Erro ao criar veículo:', error);
+      console.error('Erro ao atualizar veículo:', error);
       if (error.response?.data?.details) {
         const apiErrors = {};
         error.response.data.details.forEach(err => {
@@ -105,7 +110,7 @@ const ModalCadastro = ({ isOpen, onClose, onSuccess }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>🚗 Novo Veículo</h2>
+          <h2>✏️ Editar Veículo</h2>
           <button className="modal-close" onClick={onClose}>
             ×
           </button>
@@ -202,7 +207,7 @@ const ModalCadastro = ({ isOpen, onClose, onSuccess }) => {
               className="btn btn-primary"
               disabled={loading}
             >
-              {loading ? 'Cadastrando...' : 'Cadastrar Veículo'}
+              {loading ? 'Salvando...' : 'Salvar Alterações'}
             </button>
           </div>
         </form>
@@ -211,4 +216,4 @@ const ModalCadastro = ({ isOpen, onClose, onSuccess }) => {
   );
 };
 
-export default ModalCadastro; 
+export default ModalEdicao; 
